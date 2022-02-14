@@ -1,5 +1,6 @@
 package com.wmy.community.controller;
 
+import com.wmy.community.model.dto.RegInfo;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,8 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping("/registry")
-    public Result register(String username,String password,String email){
-        userService.register(username,password,email);
+    public Result register(@RequestBody RegInfo regInfo){
+        userService.register(regInfo.getUsername(),regInfo.getPassword(),regInfo.getEmail());
         return Result.ok("注册成功，已经向您邮箱发送激活链接，请尽快激活");
     }
 

@@ -3,9 +3,7 @@ package com.wmy.community.controller;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Description: 注册 登录功能
@@ -21,7 +19,13 @@ public class LoginController {
     @PostMapping("/registry")
     public Result register(String username,String password,String email){
         userService.register(username,password,email);
-        return Result.ok("注册成功");
+        return Result.ok("注册成功，已经向您邮箱发送激活链接，请尽快激活");
+    }
+
+    @GetMapping("/activation/{userId}/{code}")
+    public Result activation(@PathVariable("userId") int userId,@PathVariable("code") String code){
+        userService.activation(userId,code);
+        return Result.ok("激活成功，请登录");
     }
 
 }

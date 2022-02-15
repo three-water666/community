@@ -1,10 +1,14 @@
 package com.wmy.community.controller;
 
 import com.google.code.kaptcha.Producer;
-import com.wmy.community.config.KaptchaConfig;
-import com.wmy.community.model.dto.RegInfo;
+import com.wmy.community.entity.LoginTicket;
+import com.wmy.community.enums.TokenValidTimeEnum;
+import com.wmy.community.exception.DomainException;
+import com.wmy.community.model.dto.LoginInfo;
+import com.wmy.community.model.dto.RegisterInfo;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * @Description: 注册 登录功能
@@ -30,7 +35,7 @@ public class LoginController {
     private Producer kaptchaProducer;
 
     @PostMapping("/registry")
-    public Result register(@RequestBody RegInfo regInfo){
+    public Result register(@RequestBody RegisterInfo regInfo){
         userService.register(regInfo.getUsername(),regInfo.getPassword(),regInfo.getEmail());
         return Result.ok("注册成功，已经向您邮箱发送激活链接，请尽快激活");
     }
@@ -58,6 +63,20 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @PostMapping("/login")
+    public Result login(@RequestBody LoginInfo loginInfo, HttpSession session){
+        //验证验证码 不区分大小写
+        String kaptcha =(String) session.getAttribute("kaptcha");
+        if(StringUtils.isBlank(kaptcha)||StringUtils.isBlank(loginInfo.getKaptcha())||!kaptcha.equalsIgnoreCase(loginInfo.getKaptcha())){
+            throw new DomainException("验证码错误");
+        }
+        //
+        LoginTicket token = userService.login(loginInfo.getUsername(), loginInfo.getPassword(), TokenValidTimeEnum.ONE_DAY.getSeconds());
+        HashMap<String, LoginTicket> map = new HashMap<>();
+        map.put("token",token);
+        return Result.ok("登录成功", map);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.wmy.community.service;
 
+import com.wmy.community.entity.LoginTicket;
 import com.wmy.community.entity.User;
 
 /**
@@ -13,4 +14,6 @@ public interface UserService {
     public void register(String username,String password,String email);
 
     public int activation(int userId,String code);
+
+    public LoginTicket login(String username, String password, int expiredSeconds);
 }

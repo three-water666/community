@@ -1,7 +1,9 @@
 package com.wmy.community.service.impl;
 
 import com.sun.mail.imap.Rights;
+import com.wmy.community.dao.LoginTicketMapper;
 import com.wmy.community.dao.UserMapper;
+import com.wmy.community.entity.LoginTicket;
 import com.wmy.community.entity.User;
 import com.wmy.community.enums.UserStatusEnum;
 import com.wmy.community.exception.DomainException;
@@ -33,6 +35,9 @@ public class UserServiceImpl implements UserService {
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
+
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Override
     public User findUserById(int id) {
@@ -93,6 +98,40 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new DomainException("激活失败，激活码错误");
         }
+    }
+
+    @Override
+    public LoginTicket login(String username, String password, int expiredSeconds) {
+        //空值处理
+        if(username==null){
+            throw new DomainException("账号为空");
+        }
+        if(password==null){
+            throw new DomainException("密码为空");
+        }
+
+        //验证账号
+        User user = userMapper.selectByName(username);
+        if(user==null){
+            throw new DomainException("用户不存在");
+        }
+        //验证状态
+        if(user.getStatus()==0){
+            throw new DomainException("账号未激活");
+        }
+        //验证密码
+        password=RegistryUtil.md5(password+user.getSalt());
+        if(!user.getPassword().equals(password)){
+            throw new DomainException("密码错误");
+        }
+        //分发登录凭证
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(RegistryUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds*1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        return loginTicket;
     }
 
 }

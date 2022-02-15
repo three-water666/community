@@ -6,16 +6,16 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * @Description:注册信息
+ * @Description:
  * @Author: 三水
- * @Date: 2022/2/14 19:59
+ * @Date: 2022/2/15 20:00
  */
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class RegInfo {
-    private String username;
-    private String password;
-    private String email;
+public class LoginInfo {
+    String username;
+    String password;
+    String kaptcha;
 }

@@ -16,4 +16,6 @@ public interface UserService {
     public int activation(int userId,String code);
 
     public LoginTicket login(String username, String password, int expiredSeconds);
+
+    public void logout(String ticket);
 }

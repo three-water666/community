@@ -79,4 +79,10 @@ public class LoginController {
         return Result.ok("登录成功", map);
     }
 
+    @GetMapping("/logout")
+    public Result logout(@CookieValue("ticket") String ticket){
+        userService.logout(ticket);
+        return Result.ok("登出成功");
+    }
+
 }

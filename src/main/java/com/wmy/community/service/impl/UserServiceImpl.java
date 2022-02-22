@@ -9,13 +9,16 @@ import com.wmy.community.enums.UserStatusEnum;
 import com.wmy.community.exception.DomainException;
 import com.wmy.community.service.UserService;
 import com.wmy.community.util.EmailClient;
+import com.wmy.community.util.RedisKeyUtil;
 import com.wmy.community.util.RegistryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description:
@@ -36,13 +39,40 @@ public class UserServiceImpl implements UserService {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    //@Autowired
+    //private LoginTicketMapper loginTicketMapper;
+
     @Autowired
-    private LoginTicketMapper loginTicketMapper;
+    private RedisTemplate redisTemplate;
 
     @Override
     public User findUserById(int id) {
-        return userMapper.selectById(id);
+        //return userMapper.selectById(id);
+        User user = getUserFromRedis(id);
+        if(user==null){
+            user=getUserFromDBAndInitRedis(id);
+        }
+        return user;
     }
+
+    //1. 优先从缓存中获取用户信息
+    private User getUserFromRedis(int userId){
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        return (User)redisTemplate.opsForValue().get(userKey);
+    }
+    //2. 如果缓存中没有，从数据库获取用户信息，并初始化缓存
+    private User getUserFromDBAndInitRedis(int userId){
+        User user = userMapper.selectById(userId);
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(userKey,user,3600, TimeUnit.SECONDS);
+        return user;
+    }
+    //3. 数据变更时清除缓存
+    private void clearUserInRedis(int userId){
+        String userKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(userKey);
+    }
+
 
     @Override
     public void register(String username, String password, String email) {
@@ -94,6 +124,7 @@ public class UserServiceImpl implements UserService {
         } else if (user.getStatus() == UserStatusEnum.ACTIVATED.getStatus()) {
             throw new DomainException("无效操作，账号已激活");
         } else if (user.getActivationCode().equals(code)) {
+            clearUserInRedis(userId);
             return userMapper.updateStatus(userId, 1);
         } else {
             throw new DomainException("激活失败，激活码错误");
@@ -130,13 +161,21 @@ public class UserServiceImpl implements UserService {
         loginTicket.setTicket(RegistryUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds*1000));
-        loginTicketMapper.insertLoginTicket(loginTicket);
+        //loginTicketMapper.insertLoginTicket(loginTicket);
+        //登录模块优化，将登录凭证存到redis中
+        String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        redisTemplate.opsForValue().set(ticketKey,loginTicket);
+
         return loginTicket;
     }
 
     @Override
     public void logout(String ticket) {
-        loginTicketMapper.updateStatus(ticket,1);
+        //loginTicketMapper.updateStatus(ticket,1);
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(ticketKey);
+        loginTicket.setStatus(1);
+        redisTemplate.opsForValue().set(ticketKey,loginTicket);
     }
 
 }

@@ -40,6 +40,7 @@ public class HomeController {
         List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(0,(pageNum-1)*pageSize,pageSize);
         for(DiscussPost post :discussPostList){
             Map<String, Object> map = new HashMap<>();
+            //post指的是帖子
             map.put("post", post);
             User user  = userService.findUserById(post.getUserId());
             map.put("user", user);

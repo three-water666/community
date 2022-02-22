@@ -2,23 +2,30 @@ package com.wmy.community.controller;
 
 import com.google.code.kaptcha.Producer;
 import com.wmy.community.entity.LoginTicket;
+import com.wmy.community.entity.User;
 import com.wmy.community.enums.TokenValidTimeEnum;
 import com.wmy.community.exception.DomainException;
+import com.wmy.community.interceptor.LoginInterceptor;
 import com.wmy.community.model.dto.LoginInfo;
 import com.wmy.community.model.dto.RegisterInfo;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.UserService;
+import com.wmy.community.util.CookieUtil;
+import com.wmy.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Description: 注册 登录功能
@@ -33,6 +40,9 @@ public class LoginController {
 
     @Autowired
     private Producer kaptchaProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/registry")
     public Result register(@RequestBody RegisterInfo regInfo){
@@ -80,9 +90,22 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public Result logout(@CookieValue("ticket") String ticket){
+    public Result logout(HttpServletRequest request){
+        String ticket = CookieUtil.getValueByName(request,"ticket");
         userService.logout(ticket);
         return Result.ok("登出成功");
+    }
+
+    @GetMapping("/userData")
+    public Result userData(HttpServletRequest request){
+        String ticket = CookieUtil.getValueByName(request,"token");
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(ticketKey);
+        int userId = loginTicket.getUserId();
+        User user = userService.findUserById(userId);
+        Map<String,Object> map=new HashMap<>();
+        map.put("info",user);
+        return Result.ok("请求用户数据成功",map);
     }
 
 }

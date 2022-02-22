@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
         user.setSalt(RegistryUtil.generateUUID().substring(0,5));
         user.setPassword(RegistryUtil.md5(password+user.getSalt()));
         user.setActivationCode(RegistryUtil.generateUUID());
-        user.setHeaderUrl(String.format("http://imaegs.nowcoder.com/head/%dt.png",new Random().nextInt(1000)));
+        user.setHeaderUrl(String.format("http://images.nowcoder.com/head/%dt.png",new Random().nextInt(1000)));
         user.setCreateTime(new Date());
         userMapper.insertUser(user);
 

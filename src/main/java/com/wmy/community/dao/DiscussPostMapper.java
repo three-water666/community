@@ -13,10 +13,14 @@ import java.util.List;
  */
 @Mapper
 public interface DiscussPostMapper {
+    //获得帖子列表
     List<DiscussPost> selectDiscussPosts(int userId,int offset,int limit);
 
-    //获得总行数
+    //获得帖子总行数
     //@Param注解用于给参数起别名
     //如果只有一个参数，并且在<if>里使用，必须起别名
     int selectDiscussPostRows(@Param("userId") int userId);
+
+    //通过帖子id获取帖子详情
+    DiscussPost selectDiscussPostById(int id);
 }

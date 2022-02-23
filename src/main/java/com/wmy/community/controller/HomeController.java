@@ -27,10 +27,10 @@ import java.util.Map;
 public class HomeController {
 
     @Autowired
-    DiscussPostService discussPostService;
+    private DiscussPostService discussPostService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @GetMapping("/postList")
     public Result getIndexPage(

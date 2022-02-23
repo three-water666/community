@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.Date;
 
 /**
- * @Description: 帖子列表
+ * @Description: 帖子
  * @Author: 三水
  * @Date: 2022/1/23 0:31
  */

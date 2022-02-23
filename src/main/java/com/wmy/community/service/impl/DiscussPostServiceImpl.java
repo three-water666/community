@@ -28,4 +28,9 @@ public class DiscussPostServiceImpl implements DiscussPostService {
     public int findDiscussPostRows(int userId) {
         return discussPostMapper.selectDiscussPostRows(userId);
     }
+
+    @Override
+    public DiscussPost findDiscussPostById(int postId) {
+        return discussPostMapper.selectDiscussPostById(postId);
+    }
 }

@@ -98,7 +98,7 @@ public class LoginController {
 
     @GetMapping("/userData")
     public Result userData(HttpServletRequest request){
-        String ticket = CookieUtil.getValueByName(request,"token");
+        String ticket = CookieUtil.getValueByName(request,"ticket");
         String ticketKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(ticketKey);
         int userId = loginTicket.getUserId();

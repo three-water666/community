@@ -26,8 +26,21 @@ public class RedisKeyUtil {
         return PREFIX_TICKET+SPLIT+ticket;
     }
 
+    //缓存用户，userId作为key
     public static String getUserKey(int userId){
         return PREFIX_USER+SPLIT+userId;
+    }
+
+    //某个实体的赞，实体可以是帖子，评论等
+    //like:entity:entityType:entityId->set(userId)
+    public static String getEntityLikeKey(int entityType,int entityId){
+        return PREFIX_ENTITY_LIKE+SPLIT+entityType+entityId;
+    }
+
+    //某个用户获得的赞的个数
+    //like:user:userId->int
+    public static String getUserLikeKey(int userId){
+        return PREFIX_USER_LIKE+SPLIT+userId;
     }
 
 }

@@ -4,6 +4,7 @@ import com.wmy.community.entity.DiscussPost;
 import com.wmy.community.entity.User;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.DiscussPostService;
+import com.wmy.community.service.LikeService;
 import com.wmy.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,9 @@ public class DiscussPostController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LikeService likeService;
+
     @GetMapping("/{postId}")
     public Result getDiscussPost(@PathVariable("postId") int postId){
         Map<String,Object> map=new HashMap<>();
@@ -36,6 +40,8 @@ public class DiscussPostController {
         map.put("discussPost",discussPost);
         User user = userService.findUserById(discussPost.getUserId());
         map.put("user",user);
+        long likeCount = likeService.findEntityLikeCount(1, discussPost.getId());
+        map.put("likeCount",likeCount);
         return Result.ok("请求帖子详情成功",map);
     }
 

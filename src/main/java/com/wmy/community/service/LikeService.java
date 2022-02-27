@@ -10,5 +10,9 @@ import org.springframework.data.redis.core.RedisTemplate;
  */
 public interface LikeService {
 
+    //点赞
     public void like(int userId,int entityType,int entityId,int entityUserId);
+
+    //查询某实体的获得的点赞数
+    public long findEntityLikeCount(int entityType,int entityId);
 }

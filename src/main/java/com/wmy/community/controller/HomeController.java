@@ -5,6 +5,7 @@ import com.wmy.community.entity.User;
 import com.wmy.community.model.vo.PageResult;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.DiscussPostService;
+import com.wmy.community.service.LikeService;
 import com.wmy.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,9 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private LikeService likeService;
+
     @GetMapping("/postList")
     public Result getIndexPage(
             @RequestParam(required = false,defaultValue = "10") int pageSize,
@@ -44,6 +48,8 @@ public class HomeController {
             map.put("post", post);
             User user  = userService.findUserById(post.getUserId());
             map.put("user", user);
+            long likeCount = likeService.findEntityLikeCount(1, post.getId());
+            map.put("likeCount",likeCount);
             discussPosts.add(map);
         }
         PageResult<Map<String, Object>> pageResult = new PageResult<>();

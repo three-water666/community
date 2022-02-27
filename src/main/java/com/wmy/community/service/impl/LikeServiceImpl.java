@@ -49,4 +49,11 @@ public class LikeServiceImpl implements LikeService {
             }
         });
     }
+
+    @Override
+    public long findEntityLikeCount(int entityType, int entityId) {
+        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);
+        Long size = redisTemplate.opsForSet().size(entityLikeKey);
+        return size;
+    }
 }

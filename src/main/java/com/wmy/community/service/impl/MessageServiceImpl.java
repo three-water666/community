@@ -34,4 +34,12 @@ public class MessageServiceImpl implements MessageService {
 
         return messageMapper.insertMessage(message);
     }
+
+    @Override
+    public PageInfo<Message> findSystemMessage(int userId, int pageNum, int pageSize) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<Message> list = messageMapper.selectSystemMessage(userId);
+        PageInfo<Message> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
 }

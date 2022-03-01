@@ -42,23 +42,29 @@ public class MessageController {
     private UserService userService;
 
     @GetMapping("/conversationList")
-    public Result getConversationList(HttpServletRequest request,int pageNum,int pageSize){
+    public Result getConversationList(HttpServletRequest request,int pageNum,int pageSize,String messageType){
         String ticket = CookieUtil.getValueByName(request,"ticket");
         String ticketKey = RedisKeyUtil.getTicketKey(ticket);
         LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(ticketKey);
         int userId = loginTicket.getUserId();
-        PageInfo<Message> conversations = messageService.findConversations(userId, pageNum, pageSize);
 
-        //Map<String,Object> res=new HashMap<>();
+        PageInfo<Message> conversations=null;
+        //根据messageType决定查询私信还是通知
+        if(messageType.equals("message")){
+            conversations = messageService.findConversations(userId, pageNum, pageSize);
+        }else{
+            conversations = messageService.findSystemMessage(userId, pageNum, pageSize);
+        }
+
         List<Map<String,Object>> conversationList=new ArrayList<>();
-        for(Message message:conversations.getList()){
+        for(Message message: conversations.getList()){
             Map<String,Object> map=new HashMap<>();
             map.put("lastMessage",message);
             map.put("from",userService.findUserById(message.getFromId()));
             conversationList.add(map);
         }
-        //res.put("data",conversationList);
-        return Result.ok("请求私信列表成功",new PageResult<Map<String,Object>>((int)conversations.getTotal(),conversationList));
+
+        return Result.ok("请求私信/系统通知成功",new PageResult<Map<String,Object>>((int)conversations.getTotal(),conversationList));
     }
 
 

@@ -14,4 +14,6 @@ public interface MessageService {
 
     //发送私信
     public int addMessage(Message message);
+
+    public PageInfo<Message> findSystemMessage(int userId,int pageNum,int pageSize);
 }

@@ -16,6 +16,9 @@ public interface MessageMapper {
     //查询当前用户会话列表，每个会话只返回最新私信
     List<Message> selectConversations(int userId);
 
+    //查询当前用户系统通知最新私信
+    List<Message> selectSystemMessage(int userId);
+
     //查询当前用户会话数量
     int selectConversationCount(int userId);
 

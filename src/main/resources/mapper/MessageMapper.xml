@@ -25,6 +25,13 @@
         order by id desc
     </select>
 
+    <select id="selectSystemMessage" resultType="Message">
+        select <include refid="selectFields"></include>
+        from message
+        where from_id=1 and to_id=#{userId} and status!=2
+        order by create_time desc
+    </select>
+
     <select id="selectConversationCount" resultType="int">
         select count(m.maxid) from (
             select max(id) as maxid from message

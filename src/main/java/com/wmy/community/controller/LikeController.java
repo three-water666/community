@@ -1,7 +1,9 @@
 package com.wmy.community.controller;
 
 import com.wmy.community.entity.DiscussPost;
+import com.wmy.community.entity.Event;
 import com.wmy.community.entity.LoginTicket;
+import com.wmy.community.event.EventProducer;
 import com.wmy.community.exception.DomainException;
 import com.wmy.community.model.vo.Result;
 import com.wmy.community.service.DiscussPostService;
@@ -31,6 +33,9 @@ public class LikeController {
     @Autowired
     private DiscussPostService discussPostService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @PutMapping("like/{postId}")
     public Result like(HttpServletRequest request,@PathVariable("postId")int postId){
         String ticket = CookieUtil.getValueByName(request,"ticket");
@@ -46,6 +51,16 @@ public class LikeController {
         DiscussPost discussPost = discussPostService.findDiscussPostById(postId);
 
         likeService.like(userId,1,postId,discussPost.getUserId());
+
+        //点赞后使用生产者发送通知
+        Event event = new Event();
+        event.setTopic("like");
+        event.setUserId(userId);
+        event.setEntityType(1);//帖子点赞
+        event.setEntityId(postId);
+        event.setEntityUserId(discussPost.getUserId());
+
+        eventProducer.fireEvent(event);
 
         return Result.ok("点赞成功");
     }

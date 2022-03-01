@@ -11,4 +11,7 @@ import com.wmy.community.entity.Message;
 public interface MessageService {
     //查找会话列表
     public PageInfo<Message> findConversations(int userId,int pageNum,int pageSize);
+
+    //发送私信
+    public int addMessage(Message message);
 }

@@ -28,4 +28,10 @@ public class MessageServiceImpl implements MessageService {
         PageInfo<Message> pageInfo = new PageInfo<>(list);
         return pageInfo;
     }
+
+    @Override
+    public int addMessage(Message message) {
+
+        return messageMapper.insertMessage(message);
+    }
 }

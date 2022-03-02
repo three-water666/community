@@ -14,8 +14,11 @@ import com.wmy.community.util.RegistryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -178,4 +181,27 @@ public class UserServiceImpl implements UserService {
         redisTemplate.opsForValue().set(ticketKey,loginTicket);
     }
 
+    @Override
+    public LoginTicket findLoginTicket(String ticket) {
+        String ticketKey = RedisKeyUtil.getTicketKey(ticket);
+        return (LoginTicket)redisTemplate.opsForValue().get(ticketKey);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+        User user = this.findUserById(userId);
+
+        ArrayList<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                switch(user.getType()){
+                    case 1:return "admin";
+                    case 2:return "moderator";
+                    default:return "user";
+                }
+            }
+        });
+        return list;
+    }
 }

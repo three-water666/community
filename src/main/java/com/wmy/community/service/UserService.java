@@ -2,6 +2,9 @@ package com.wmy.community.service;
 
 import com.wmy.community.entity.LoginTicket;
 import com.wmy.community.entity.User;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 /**
  * @Description:
@@ -18,4 +21,9 @@ public interface UserService {
     public LoginTicket login(String username, String password, int expiredSeconds);
 
     public void logout(String ticket);
+
+    public LoginTicket findLoginTicket(String ticket);
+
+    //获得用户权限
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId);
 }

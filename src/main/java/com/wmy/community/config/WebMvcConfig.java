@@ -15,11 +15,11 @@ import javax.annotation.Resource;
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-    //@Autowired
-    //private LoginInterceptor loginInterceptor;
-    //
-    //@Override
-    //public void addInterceptors(InterceptorRegistry registry) {
-    //    registry.addInterceptor(loginInterceptor);
-    //}
+    @Autowired
+    private LoginInterceptor loginInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginInterceptor);
+    }
 }

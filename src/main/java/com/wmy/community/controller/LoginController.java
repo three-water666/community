@@ -15,6 +15,7 @@ import com.wmy.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
@@ -93,6 +94,7 @@ public class LoginController {
     public Result logout(HttpServletRequest request){
         String ticket = CookieUtil.getValueByName(request,"ticket");
         userService.logout(ticket);
+        SecurityContextHolder.clearContext();
         return Result.ok("登出成功");
     }
 
